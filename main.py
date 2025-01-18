@@ -7,6 +7,8 @@ import os
 import requests
 from mega import Mega
 from dotenv import load_dotenv
+from telebot.types import ReplyKeyboardRemove
+
 
 bot = telebot.TeleBot(os.getenv("BOT_TOKEN"))
 
@@ -164,7 +166,7 @@ def error_start(message):
     if user_answer == 'Я готов!':
         main(message)
     else:
-        bot.send_message(message.chat.id, CONNECT_WITH_CREATOR)
+        bot.send_message(message.chat.id, CONNECT_WITH_CREATOR,reply_markup=ReplyKeyboardRemove())
 
 # Старт
 @bot.message_handler(commands=['start'])
@@ -229,6 +231,7 @@ def on_click_count(message):
 
 # Выбрать кол-во детей
 def on_click_pay(message):
+    bot.send_message(message.chat.id, "Отлично! Секунду, ищу нужную ссылку.", reply_markup=ReplyKeyboardRemove())
     user_answer = message.text
     user_id = message.chat.id
     if user_answer in ['1', '2', '3']:
@@ -240,7 +243,7 @@ def on_click_pay(message):
             bot.send_message(message.chat.id, PRINT_PAY, reply_markup=markup)
             bot.register_next_step_handler(message, get_name)
         else:
-            bot.send_message(message.chat.id, LINK_NOT_FOUND_ERROR)
+            bot.send_message(message.chat.id, LINK_NOT_FOUND_ERROR,reply_markup=ReplyKeyboardRemove())
     else:
         period = user_data[user_id]['period']
         url = get_link(user_data[user_id]["number_of_group"], None, int(period.split()[0]))
@@ -250,7 +253,7 @@ def on_click_pay(message):
             bot.send_message(message.chat.id, PRINT_PAY, reply_markup=markup)
             bot.register_next_step_handler(message, get_name)
         else:
-            bot.send_message(message.chat.id, LINK_NOT_FOUND_ERROR)
+            bot.send_message(message.chat.id, LINK_NOT_FOUND_ERROR,reply_markup=ReplyKeyboardRemove())
 # Получить имя ребенка
 def get_name(message):
     user_id = message.chat.id
@@ -263,9 +266,9 @@ def get_name(message):
         main(message)
 
 # Отправить фото в облако
-@bot.message_handler(content_types=['photo'])
 def get_recipe(message):
     if message.content_type == 'photo':
+        bot.send_message(message.chat.id, "Отлично! Секунду.", reply_markup=ReplyKeyboardRemove())
         user_id = message.chat.id
         # Получаем ID самого большого фото
         file_id = message.photo[-1].file_id
@@ -284,14 +287,14 @@ def get_recipe(message):
         # Загружаем файл в MEGA
         try:
             upload_status = upload_file_to_mega(file_name)
-            bot.send_message(message.chat.id, f"Чек успешно загружен на MEGA: {upload_status}")
+            bot.send_message(message.chat.id, f"Чек успешно загружен: {upload_status}",reply_markup=ReplyKeyboardRemove())
         except Exception as e:
-            bot.send_message(message.chat.id, f"Ошибка загрузки на MEGA: {str(e)}")
+            bot.send_message(message.chat.id, f"Ошибка загрузки на MEGA: {str(e)}",reply_markup=ReplyKeyboardRemove())
         finally:
             # Удаляем локальный файл после загрузки
             os.remove(file_name)
     elif message.text != '/start':
-        bot.send_message(message.chat.id, 'Отправьте, пожалуйста, скриншот чека.')
+        bot.send_message(message.chat.id, 'Отправьте, пожалуйста, скриншот чека.',reply_markup=ReplyKeyboardRemove())
     else:
         main(message)
 

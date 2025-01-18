@@ -1,6 +1,6 @@
 services:
   Bot:
-    image: ghcr.io/oleneen/Bot
+    image: ghcr.io/oleneen/tg-bot
     env_file:
       - .env
     restart: unless-stopped
